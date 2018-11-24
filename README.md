@@ -9,6 +9,10 @@ Go code from the command line.
 
     usage: gosnip [-d] [-i import ...] statements...
 
+To download and install, use "go get":
+
+    $ go get github.com/benhoyt/gosnip
+
 For simple uses, just specify one or more Go statements on the
 command line, and gosnip will roll them into a full Go program and
 run the result using "go run". Standard library imports are added
