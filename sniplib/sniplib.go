@@ -104,7 +104,12 @@ func addImports(file *ast.File, imports []string) error {
 			case 1:
 				importPath = stdlib[u.Name][0]
 			default:
-				return fmt.Errorf("multiple %q packages in stdlib, use -i to disambiguate", u.Name)
+				iflag := []string{}
+				for _, p := range stdlib[u.Name] {
+					iflag = append(iflag, fmt.Sprintf(`"-i %s"`, p))
+				}
+				iflagStr := strings.Join(iflag, " or ")
+				return fmt.Errorf("multiple %q packages in stdlib, use flag %s", u.Name, iflagStr)
 			}
 		}
 
