@@ -50,6 +50,16 @@ The gosnip command-line tool is a thin wrapper around the
 "sniplib" package. To run Go snippets in your Go programs, see the
 [sniplib docs](https://godoc.org/github.com/benhoyt/gosnip/sniplib).
 
+## Why?
+
+I made gosnip because when coding in Go I often need to try little
+snippets of code to see what they do, for example, what does
+`fmt.Printf("%6.3f\n", 1.23)` do again? I could use the
+[Go playground](https://play.golang.org/), but it's nice to be able
+to use a one-line command. Also, I often develop while offline on my
+bus commute, so don't have access to the online Go playground (yes, I
+know it's possible to run the Go playground locally).
+
 ## License
 
 gosnip is licensed under an open source [MIT license](https://github.com/benhoyt/gosnip/blob/master/LICENSE.txt).
