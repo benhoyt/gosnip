@@ -1,0 +1,8 @@
+environment:
+  GOPATH: c:\gopath
+
+install:
+  - go version
+
+test_script:
+  - go test ./...

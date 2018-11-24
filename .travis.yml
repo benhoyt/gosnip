@@ -1,0 +1,13 @@
+language: go
+
+go:
+  - 1.11.x
+
+# Setting sudo access to false will let Travis CI use containers
+# rather than VMs to run the tests. For more details see:
+# https://docs.travis-ci.com/user/reference/overview/
+sudo: false
+
+script:
+  - go version
+  - go test ./...
