@@ -52,9 +52,9 @@ The gosnip command-line tool is a thin wrapper around the
 
 ## Why?
 
-I made gosnip because when coding in Go I often need to try little
-snippets of code to see what they do, for example, what does
-`fmt.Printf("%6.3f\n", 1.23)` do again? I could use the
+I made gosnip because when coding in Go I often want to try little
+snippets of code to see what they do, for example, "how does format
+string `%6.3f` work again?" I could use the
 [Go playground](https://play.golang.org/), but it's nice to be able
 to use a one-line command. Also, I often develop while offline on my
 bus commute, so don't have access to the online Go playground (yes, I
