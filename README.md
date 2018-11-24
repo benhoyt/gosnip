@@ -5,3 +5,4 @@ TODO
 ## License
 
 gosnip is licensed under an open source [MIT license](https://github.com/benhoyt/gosnip/blob/master/LICENSE.txt).
+
