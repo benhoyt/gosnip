@@ -5,124 +5,43 @@ package sniplib
 import (
 	"bytes"
 	"fmt"
-	"go/ast"
-	"go/parser"
-	"go/printer"
-	"go/token"
 	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 	"syscall"
+
+	importspkg "golang.org/x/tools/imports"
 )
 
 // ToProgram converts a slice of Go statements to a full Go program.
-// Standard library imports are added automatically. The imports arg
-// is a list of explicit imports for importing non-stdlib packages or
-// for selecting between ambiguous stdlib import names like
+// References to standard library functions and functions from
+// packages in GOPATH are imported automatically (using the same
+// logic as the "goimports" tool).
+//
+// The "imports" arg is an explicit list of imports, only needed for
+// selecting between ambiguous stdlib import names like
 // "text/template" and "html/template". Returns the formatted source
 // text of the full Go program and any error that occurred.
 func ToProgram(statements, imports []string) (string, error) {
-	snippet := strings.Join(statements, "; ")
-	fset, file, err := parse(snippet)
-	if err != nil {
-		return "", err
+	importStrs := make([]string, len(imports))
+	for i, imp := range imports {
+		importStrs[i] = fmt.Sprintf("import %q", imp)
 	}
-	err = addImports(file, imports)
-	if err != nil {
-		return "", err
-	}
-	buf := &bytes.Buffer{}
-	err = printer.Fprint(buf, fset, file)
-	if err != nil {
-		return "", err
-	}
-	return buf.String(), nil
-}
-
-// Parses a Go source snippet and returns the file set and AST.
-func parse(snippet string) (*token.FileSet, *ast.File, error) {
-	fset := token.NewFileSet()
 	source := fmt.Sprintf(`
 package main
 
+%s
+
 func main() {
-    %s
-}
-`, snippet)
-	file, err := parser.ParseFile(fset, "", source, 0)
+	%s
+}`, strings.Join(importStrs, "\n"), strings.Join(statements, "; "))
+	processed, err := importspkg.Process("", []byte(source), nil)
 	if err != nil {
-		return nil, nil, err
+		return "", err
 	}
-	return fset, file, nil
-}
-
-// Add stdlib imports or explicit imports necessary to resolve any
-// unresolved names in the parsed file.
-func addImports(file *ast.File, imports []string) error {
-	importDecl := &ast.GenDecl{
-		Tok:    token.IMPORT,
-		Lparen: 1, // made-up nonzero position for '(' so it's a multiline "import ( ... )"
-	}
-	// Add import declaration first in the declarations list
-	file.Decls = append([]ast.Decl{importDecl}, file.Decls...)
-
-	// Convert explicit imports list to a map of imported name to
-	// full package name
-	importsMap := make(map[string]string)
-	for _, imp := range imports {
-		parts := strings.Split(imp, "/")
-		name := parts[len(parts)-1]
-		if _, ok := importsMap[name]; ok {
-			return fmt.Errorf("multiple %q packages specified", name)
-		}
-		importsMap[name] = imp
-	}
-
-	seen := make(map[string]bool)
-	for _, u := range file.Unresolved {
-		if builtins[u.Name] {
-			// For whatever reason, builtins like "int" are considered
-			// unresolved names in the AST
-			continue
-		}
-		if seen[u.Name] {
-			// We've already seen/handled this unresolved name
-			continue
-		}
-		seen[u.Name] = true
-
-		// First look it up in the explicit imports list, if it's not
-		// there try the standard library
-		importPath := importsMap[u.Name]
-		if importPath == "" {
-			switch len(stdlib[u.Name]) {
-			case 0:
-				return fmt.Errorf("undefined name %q, did you forget the -i flag?", u.Name)
-			case 1:
-				importPath = stdlib[u.Name][0]
-			default:
-				iflag := []string{}
-				for _, p := range stdlib[u.Name] {
-					iflag = append(iflag, fmt.Sprintf(`"-i %s"`, p))
-				}
-				iflagStr := strings.Join(iflag, " or ")
-				return fmt.Errorf("multiple %q packages in stdlib, use flag %s", u.Name, iflagStr)
-			}
-		}
-
-		// Add the import to the import declaration
-		spec := &ast.ImportSpec{
-			Path: &ast.BasicLit{
-				Kind:  token.STRING,
-				Value: strconv.Quote(importPath),
-			},
-		}
-		importDecl.Specs = append(importDecl.Specs, spec)
-	}
-	return nil
+	return string(processed), nil
 }
 
 // Run runs the given Go program source. Use the provided stdin

@@ -5,8 +5,9 @@
 //
 // For simple uses, just specify one or more Go statements on the
 // command line, and gosnip will roll them into a full Go program and
-// run the result using "go run". Standard library imports are added
-// automatically. Some examples:
+// run the result using "go run". Standard library imports and any
+// imports needed for packages in GOPATH are added automatically
+// (using the same logic as the "goimports" tool). Some examples:
 //
 //     $ gosnip 'fmt.Println("Hello world")'
 //     Hello world
@@ -15,14 +16,17 @@
 //     Current time:
 //     2018-11-24 16:18:47.101951 -0500 EST m=+0.000419239
 //
-// The -i flag specifies an explicit import, which is needed for
-// non-stdlib imports or to disambiguate between ambiguous stdlib
-// imports such as "text/template" and "html/template" (multiple -i
-// flags are allowed). For example, -i is needed for "rand" because
-// the standard library has math/rand and crypto/rand):
+// The -i flag allows you to specify an import explicitly, which may be
+// needed to select between ambiguous stdlib imports such as
+// "text/template" and "html/template" (multiple -i flags are
+// allowed). For example:
 //
-//     $ gosnip -i math/rand 'fmt.Println(rand.Intn(100))'
-//     81
+//     $ ./gosnip -i text/template 't, _ := template.New("w").Parse("{{ . }}\n")' \
+//                                 't.Execute(os.Stdout, "<b>")'
+//     <b>
+//     $ ./gosnip -i html/template 't, _ := template.New("w").Parse("{{ . }}\n")' \
+//                                 't.Execute(os.Stdout, "<b>")'
+//     &lt;b&gt;
 //
 // The -d flag turns on debug mode, which prints the full program on
 // stderr before running it. For example:
@@ -54,12 +58,22 @@ import (
 	"github.com/benhoyt/gosnip/sniplib"
 )
 
+const (
+	version = "v1.1.0"
+)
+
 func main() {
 	var imports multiString
 	flag.Var(&imports, "i", "import `package` explicitly; multiple -i flags allowed\n(usually used for non-stdlib packages)")
 	debug := flag.Bool("d", false, "debug mode (print full source to stderr)")
+	showVersion := flag.Bool("version", false, "show gosnip version and exit")
 	flag.Parse()
 	args := flag.Args()
+
+	if *showVersion {
+		fmt.Printf("gosnip %s - Copyright (c) 2018 Ben Hoyt\n", version)
+		return
+	}
 
 	if len(args) < 1 {
 		errorExit("usage: gosnip [-d] [-i import ...] statements...\n")

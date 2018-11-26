@@ -23,9 +23,7 @@ func TestToProgram(t *testing.T) {
 			nil,
 			`package main
 
-import (
-	"fmt"
-)
+import "fmt"
 
 func main() {
 	fmt.Println("Hello world")
@@ -50,9 +48,7 @@ func main() {
 			[]string{},
 			`package main
 
-import (
-	"fmt"
-)
+import "fmt"
 
 func main() {
 	fmt.Println("x")
@@ -64,9 +60,7 @@ func main() {
 			[]string{"text/template"},
 			`package main
 
-import (
-	"text/template"
-)
+import "text/template"
 
 func main() {
 	template.Must()
@@ -77,33 +71,30 @@ func main() {
 			[]string{"github.com/user/foo"},
 			`package main
 
-import (
-	"github.com/user/foo"
-)
+import "github.com/user/foo"
 
 func main() {
 	foo.Bar()
 }
 `},
 		{
+			[]string{`fmt.Println(rand.Int)`}, // don't call it (it's not very testable)
+			nil,
+			`package main
+
+import (
+	"fmt"
+	"math/rand"
+)
+
+func main() {
+	fmt.Println(rand.Int)
+}
+`},
+		{
 			[]string{`fmt.Println(`},
 			[]string{},
-			"ERROR: 6:1: expected operand, found '}'",
-		},
-		{
-			[]string{`fmt.Println()`},
-			[]string{"foo", "foo"},
-			`ERROR: multiple "foo" packages specified`,
-		},
-		{
-			[]string{`foo.Bar()`},
-			nil,
-			`ERROR: undefined name "foo", did you forget the -i flag?`,
-		},
-		{
-			[]string{`template.Must()`},
-			nil,
-			`ERROR: multiple "template" packages in stdlib, use flag "-i html/template" or "-i text/template"`,
+			"ERROR: 8:1: expected operand, found '}'",
 		},
 	}
 	for _, test := range tests {
@@ -178,6 +169,17 @@ func main() {
 			"a funky error\nexit status 5\n",
 			"exit status 1",
 		},
+		{
+			`package main
+
+func main() {
+	foo.Bar()
+}
+`,
+			"",
+			"4:2: undefined: foo\n",
+			"exit status 2",
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.source, func(t *testing.T) {
@@ -211,9 +213,7 @@ func ExampleToProgram() {
 	// Output:
 	// package main
 	//
-	// import (
-	// 	"fmt"
-	// )
+	// import "fmt"
 	//
 	// func main() {
 	// 	fmt.Println("Hello world")
@@ -246,9 +246,7 @@ func ExampleRun() {
 	source := `
 package main
 
-import (
-	"fmt"
-)
+import "fmt"
 
 func main() {
 	fmt.Println("Hello world")
