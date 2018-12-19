@@ -32,10 +32,10 @@ needed to select between ambiguous stdlib imports such as
 allowed). For example:
 
     $ gosnip -i text/template 't, _ := template.New("w").Parse("{{ . }}\n")' \
-                                't.Execute(os.Stdout, "<b>")'
+                              't.Execute(os.Stdout, "<b>")'
     <b>
     $ gosnip -i html/template 't, _ := template.New("w").Parse("{{ . }}\n")' \
-                                't.Execute(os.Stdout, "<b>")'
+                              't.Execute(os.Stdout, "<b>")'
     &lt;b&gt;
 
 The -d flag turns on debug mode, which prints the full program on
