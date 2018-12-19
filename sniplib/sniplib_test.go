@@ -78,7 +78,7 @@ func main() {
 }
 `},
 		{
-			[]string{`fmt.Println(rand.Int)`}, // don't call it (it's not very testable)
+			[]string{`fmt.Println(rand.Intn)`}, // don't call it (it's not very testable)
 			nil,
 			`package main
 
@@ -88,7 +88,7 @@ import (
 )
 
 func main() {
-	fmt.Println(rand.Int)
+	fmt.Println(rand.Intn)
 }
 `},
 		{
