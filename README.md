@@ -31,10 +31,10 @@ needed to select between ambiguous stdlib imports such as
 "text/template" and "html/template" (multiple -i flags are
 allowed). For example:
 
-    $ ./gosnip -i text/template 't, _ := template.New("w").Parse("{{ . }}\n")' \
+    $ gosnip -i text/template 't, _ := template.New("w").Parse("{{ . }}\n")' \
                                 't.Execute(os.Stdout, "<b>")'
     <b>
-    $ ./gosnip -i html/template 't, _ := template.New("w").Parse("{{ . }}\n")' \
+    $ gosnip -i html/template 't, _ := template.New("w").Parse("{{ . }}\n")' \
                                 't.Execute(os.Stdout, "<b>")'
     &lt;b&gt;
 
