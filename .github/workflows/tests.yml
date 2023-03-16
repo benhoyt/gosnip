@@ -30,7 +30,7 @@ jobs:
         go version
         go test -race ./...
 
-    - name: Build binary and run it
+    - name: Test that binary builds
       run: |
         go build
-        ./gosnip 'fmt.Println("Test")'
+        ./gosnip "fmt.Println(time.Now())"
