@@ -149,7 +149,7 @@ func main() {
 }
 `,
 			"",
-			"8:2: undefined: fmt.X\n",
+			"8:6: undefined: fmt.X\n",
 			"exit status 2",
 		},
 		{
