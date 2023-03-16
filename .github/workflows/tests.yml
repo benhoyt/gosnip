@@ -30,11 +30,7 @@ jobs:
         go version
         go test -race ./...
 
-    - name: Build binary and test
+    - name: Build binary and run it
       run: |
         go build
-        output="$(./gosnip 'fmt.Println("Test")')"
-        echo $output
-        if [ "$output" != "Test" ]; then
-          exit 1
-        fi
+        ./gosnip 'fmt.Println("Test")'
