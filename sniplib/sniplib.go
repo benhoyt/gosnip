@@ -10,7 +10,6 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"syscall"
 
 	importspkg "golang.org/x/tools/imports"
 )
@@ -69,28 +68,15 @@ func Run(source string, stdin io.Reader, stdout, stderr io.Writer) error {
 	errBuf := &bytes.Buffer{}
 	cmd.Stderr = errBuf
 	err = cmd.Run()
-	if exitStatus(err) == 2 {
-		// "go run" exit status 2 means compile error, so filter the
-		// funky temp filename and extraneous "go run" comments
+	if err != nil {
+		// Ideally we'd only do this filtering on compile error, not program
+		// error, but it's hard to tell the difference ("go run" used to
+		// return exit code 2 for this, but since Go 1.20, it doesn't).
 		filterStderr(errBuf.Bytes(), stderr)
 		return err
 	}
 	_, _ = errBuf.WriteTo(stderr)
 	return err
-}
-
-// Return exit status from given exec error (there'll be a better way
-// to do this in Go 1.12!).
-func exitStatus(err error) int {
-	if err == nil {
-		return 0
-	}
-	if exitErr, ok := err.(*exec.ExitError); ok {
-		if status, ok := exitErr.Sys().(syscall.WaitStatus); ok {
-			return status.ExitStatus()
-		}
-	}
-	return 1
 }
 
 // Filter out extraneous output and temp file name from "go run"
@@ -104,6 +90,10 @@ func exitStatus(err error) int {
 //     8:2: undefined: fmt.X
 //
 func filterStderr(data []byte, writer io.Writer) {
+	if !bytes.Contains(data, []byte("# command-line-arguments")) {
+		writer.Write(data)
+		return
+	}
 	lines := bytes.Split(data, []byte("\n"))
 	for _, line := range lines {
 		if bytes.HasPrefix(line, []byte("# ")) {
