@@ -82,13 +82,12 @@ func Run(source string, stdin io.Reader, stdout, stderr io.Writer) error {
 // Filter out extraneous output and temp file name from "go run"
 // output in case of compile error. Example "go run" output:
 //
-//     # command-line-arguments
-//     /var/folders/sz/thh6m7316b3gvvvmjp8qpdrm0000gp/T/gosnip_615300750.go:8:2: undefined: fmt.X
+//	# command-line-arguments
+//	/var/folders/sz/thh6m7316b3gvvvmjp8qpdrm0000gp/T/gosnip_615300750.go:8:2: undefined: fmt.X
 //
 // Output after filtering:
 //
-//     8:2: undefined: fmt.X
-//
+//	8:2: undefined: fmt.X
 func filterStderr(data []byte, writer io.Writer) {
 	if !bytes.Contains(data, []byte("# command-line-arguments")) {
 		writer.Write(data)
