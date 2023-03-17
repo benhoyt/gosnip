@@ -1,8 +1,7 @@
 # gosnip: run small snippets of Go code from the command line
 
-[![GoDoc](https://godoc.org/github.com/benhoyt/gosnip?status.png)](https://godoc.org/github.com/benhoyt/gosnip)
-[![TravisCI Build](https://travis-ci.org/benhoyt/gosnip.svg)](https://travis-ci.org/benhoyt/gosnip)
-[![AppVeyor Build](https://ci.appveyor.com/api/projects/status/github/benhoyt/gosnip?branch=master&svg=true)](https://ci.appveyor.com/project/benhoyt/gosnip)
+[![Documentation](https://pkg.go.dev/badge/github.com/benhoyt/gosnip)](https://pkg.go.dev/github.com/benhoyt/gosnip)
+[![GitHub Actions Build](https://github.com/benhoyt/gosnip/workflows/Tests/badge.svg)](https://github.com/benhoyt/gosnip/actions/workflows/tests.yml)
 
 Package gosnip is a tool that allows you to run small snippets of
 Go code from the command line.

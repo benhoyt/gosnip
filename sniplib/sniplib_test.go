@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -149,8 +150,8 @@ func main() {
 }
 `,
 			"",
-			"8:2: undefined: fmt.X\n",
-			"exit status 2",
+			"8:6: undefined: fmt.X\n",
+			"exit status [12]",
 		},
 		{
 			`package main
@@ -178,7 +179,7 @@ func main() {
 `,
 			"",
 			"4:2: undefined: foo\n",
-			"exit status 2",
+			"exit status [12]",
 		},
 	}
 	for _, test := range tests {
@@ -194,12 +195,24 @@ func main() {
 				t.Errorf("expected stderr %q, got %q", test.stderr, errBuf.String())
 			}
 			if err != nil {
-				if err.Error() != test.err {
-					t.Errorf("expected error %q, got %q", test.err, err.Error())
+				if !mustMatch(test.err, err.Error()) {
+					t.Errorf("expected error to match %q, got %q", test.err, err.Error())
+				}
+			} else {
+				if test.err != "" {
+					t.Errorf("expected error to match %q, got no error", test.err)
 				}
 			}
 		})
 	}
+}
+
+func mustMatch(pattern, s string) bool {
+	matched, err := regexp.MatchString(pattern, s)
+	if err != nil {
+		panic(err)
+	}
+	return matched
 }
 
 func ExampleToProgram() {
